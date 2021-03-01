@@ -14,12 +14,35 @@ class Trainer(MLFlowBase):
             "[FR] [Paris] [bitcoin] taxifare + 1",
             "https://mlflow.lewagon.co")
 
+    def push_to_mlflow(self, exp_params, model_name, hexp_params, score):
+
+        # create a mlflow training
+        self.mlflow_create_run()  # create one training
+
+        # log trainer params
+        for key, value in exp_params.items():
+            self.mlflow_log_param(key, value)
+
+        # log params
+        self.mlflow_log_param("model", model_name)
+
+        # log model hyper params
+        for key, value in hexp_params.items():
+            self.mlflow_log_param(key, value)
+
+        # push metrics to mlflow
+        self.mlflow_log_metric("score", score)
+
     def train(self, trainer_params, hyper_params, ignored_combinations):
 
+        # convert the list of ignored combinations into a list of excluded combination keys
         ignored_combi = expand_combi_list(ignored_combinations)
         all_ignored = build_ignore_keys(ignored_combi)
 
-        i = 0
+        print("\nignored combinations:")
+        [print(colored(f"- {ignored}", "red")) for ignored in all_ignored]
+
+        train_number = 0
 
         # step 1 : iterate on trainer params
         for param_combination in product(*trainer_params.values()):
@@ -27,7 +50,17 @@ class Trainer(MLFlowBase):
             exp_params = dict(zip(trainer_params.keys(), param_combination))
 
             # print(exp_params)
-            # cros_val(**exp_params)
+
+            # build ignore key
+            ignore_key = build_ignore_key(exp_params)
+
+            # exclude ignored combinations
+            if ignore_key in all_ignored:
+
+                print(colored(f"\nignore combi {ignore_key}", "blue"))
+                continue
+
+            print(colored(f"\ntrain for combi {ignore_key}", "green"))
 
             # step 2 : iterate on models
             for model_name, model_hparams in hyper_params.items():
@@ -39,44 +72,24 @@ class Trainer(MLFlowBase):
 
                     hexp_params = dict(zip(model_hparams.keys(), hparam_combi))
 
-                    # build ignore key
-                    ignore_key = build_ignore_key(exp_params)
-
-                    # exclude ignored combinations
-                    if ignore_key in all_ignored:
-
-                        print(colored(f"ignore combi {ignore_key}", "blue"))
-                        continue
-
                     # print(hexp_params)
 
                     # mais avec quoi je train ?
-                    i += 1
-                    print(f"\nexperiment #{i}:")
+                    train_number += 1
+                    print(f"\nexperiment #{train_number}:")
                     print(exp_params)
                     print(f"model name {model_name}")
                     print(hexp_params)
 
                     # TODO: train with trainer params + model + hyperparams
+
+                    # TODO: crossval
+                    # cros_val(**exp_params)
+
+                    # TODO: process score
                     score = 123
 
                     # => appeler la crossval
 
                     # then log on mlflow
-
-                    # create a mlflow training
-                    self.mlflow_create_run()  # create one training
-
-                    # log trainer params
-                    for key, value in exp_params.items():
-                        self.mlflow_log_param(key, value)
-
-                    # log params
-                    self.mlflow_log_param("model", model_name)
-
-                    # log model hyper params
-                    for key, value in hexp_params.items():
-                        self.mlflow_log_param(key, value)
-
-                    # push metrics to mlflow
-                    self.mlflow_log_metric("score", score)
+                    self.push_to_mlflow(exp_params, model_name, hexp_params, score)

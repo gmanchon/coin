@@ -3,6 +3,10 @@ from itertools import product
 
 
 def expand_combi_list(param_combi_list):
+    """
+    converts list of ignored combinations of trainer params
+    into a list of all the single ignored combination
+    """
 
     result = []
 
@@ -18,6 +22,9 @@ def expand_combi_list(param_combi_list):
 
 
 def build_ignore_key(param):
+    """
+    builds a key identifying a combination from its content
+    """
 
     # sorting keys just in case
     param_keys = list(reversed(sorted(param.keys())))
@@ -30,6 +37,9 @@ def build_ignore_key(param):
 
 
 def build_ignore_keys(param_list):
+    """
+    builds all keys inside a liste of combination
+    """
 
     return [build_ignore_key(param) for param in param_list]
 
@@ -55,7 +65,9 @@ if __name__ == '__main__':
     ]
 
     res = expand_combi_list(ignored_combinations)
-    print(res)
+    print("\nlist of combination")
+    [print(r) for r in res]
 
     res = build_ignore_keys(res)
-    print(res)
+    print("\nlist of keys")
+    [print(r) for r in res]
