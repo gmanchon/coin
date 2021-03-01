@@ -1,7 +1,10 @@
 
 from coin.mlflowbase import MLFlowBase
+from coin.combi import expand_combi_list, build_ignore_keys, build_ignore_key
 
 from itertools import product
+
+from termcolor import colored
 
 
 class Trainer(MLFlowBase):
@@ -11,7 +14,10 @@ class Trainer(MLFlowBase):
             "[FR] [Paris] [bitcoin] taxifare + 1",
             "https://mlflow.lewagon.co")
 
-    def train(self, trainer_params, hyper_params):
+    def train(self, trainer_params, hyper_params, ignored_combinations):
+
+        ignored_combi = expand_combi_list(ignored_combinations)
+        all_ignored = build_ignore_keys(ignored_combi)
 
         i = 0
 
@@ -21,6 +27,7 @@ class Trainer(MLFlowBase):
             exp_params = dict(zip(trainer_params.keys(), param_combination))
 
             # print(exp_params)
+            # cros_val(**exp_params)
 
             # step 2 : iterate on models
             for model_name, model_hparams in hyper_params.items():
@@ -31,6 +38,15 @@ class Trainer(MLFlowBase):
                 for hparam_combi in product(*model_hparams.values()):
 
                     hexp_params = dict(zip(model_hparams.keys(), hparam_combi))
+
+                    # build ignore key
+                    ignore_key = build_ignore_key(exp_params)
+
+                    # exclude ignored combinations
+                    if ignore_key in all_ignored:
+
+                        print(colored(f"ignore combi {ignore_key}", "blue"))
+                        continue
 
                     # print(hexp_params)
 
