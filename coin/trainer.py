@@ -81,15 +81,11 @@ class Trainer(MLFlowBase):
                     print(f"model name {model_name}")
                     print(hexp_params)
 
-                    # TODO: train with trainer params + model + hyperparams
-
-                    # TODO: crossval
+                    # TODO: crossval: train with trainer params + model + hyperparams
                     # cros_val(**exp_params)
 
                     # TODO: process score
                     score = 123
-
-                    # => appeler la crossval
 
                     # then log on mlflow
                     self.push_to_mlflow(exp_params, model_name, hexp_params, score)
