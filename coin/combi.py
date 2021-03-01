@@ -4,18 +4,22 @@ from itertools import product
 
 def expand_combi_list(param_combi_list):
     """
-    converts list of ignored combinations of trainer params
-    into a list of all the single ignored combination
+    converts a list of (ignored) combinations of trainer params
+    into an expanded list of trainer params dictionaries
     """
 
     result = []
 
+    # iterate on all combinations of trainer params
     for param_combi_dict in param_combi_list:
 
+        # expand each combination of trainer params
+        # into a list of trainer params dictionaries
         for param_combi in product(*param_combi_dict.values()):
 
             exp_params = dict(zip(param_combi_dict.keys(), param_combi))
 
+            # appends the trainer params dictionary to the results
             result.append(exp_params)
 
     return result
@@ -23,7 +27,7 @@ def expand_combi_list(param_combi_list):
 
 def build_ignore_key(param):
     """
-    builds a key identifying a combination from its content
+    builds a key identifying a trainer params dictionary
     """
 
     # sorting keys just in case
@@ -38,7 +42,7 @@ def build_ignore_key(param):
 
 def build_ignore_keys(param_list):
     """
-    builds all keys inside a liste of combination
+    builds all keys inside a of list of trainer params dictionaries
     """
 
     return [build_ignore_key(param) for param in param_list]
@@ -64,10 +68,13 @@ if __name__ == '__main__':
         ),
     ]
 
+    print("\nlist of (ignored) combinations of trainer params:")
+    print(ignored_combinations)
+
     res = expand_combi_list(ignored_combinations)
-    print("\nlist of combination")
+    print("\nlist of trainer params dictionaries:")
     [print(r) for r in res]
 
     res = build_ignore_keys(res)
-    print("\nlist of keys")
+    print("\nlist of (ignore) keys:")
     [print(r) for r in res]

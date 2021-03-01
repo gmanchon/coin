@@ -23,19 +23,19 @@ class Trainer(MLFlowBase):
         for key, value in exp_params.items():
             self.mlflow_log_param(key, value)
 
-        # log params
+        # log model
         self.mlflow_log_param("model", model_name)
 
         # log model hyper params
         for key, value in hexp_params.items():
             self.mlflow_log_param(key, value)
 
-        # push metrics to mlflow
+        # log training metrics
         self.mlflow_log_metric("score", score)
 
     def train(self, trainer_params, hyper_params, ignored_combinations):
 
-        # convert the list of ignored combinations into a list of excluded combination keys
+        # convert the list of ignored combinations into a list of ignored combination keys
         ignored_combi = expand_combi_list(ignored_combinations)
         all_ignored = build_ignore_keys(ignored_combi)
 
@@ -54,10 +54,12 @@ class Trainer(MLFlowBase):
             # build ignore key
             ignore_key = build_ignore_key(exp_params)
 
-            # exclude ignored combinations
+            # skip ignored combinations
             if ignore_key in all_ignored:
 
                 print(colored(f"\nignore combi {ignore_key}", "blue"))
+
+                # skip training
                 continue
 
             print(colored(f"\ntrain for combi {ignore_key}", "green"))
@@ -74,18 +76,18 @@ class Trainer(MLFlowBase):
 
                     # print(hexp_params)
 
-                    # mais avec quoi je train ?
+                    # list of training params + model + hyper params
                     train_number += 1
-                    print(f"\nexperiment #{train_number}:")
+                    print(f"\ntraining #{train_number}:")
                     print(exp_params)
                     print(f"model name {model_name}")
                     print(hexp_params)
 
-                    # TODO: crossval: train with trainer params + model + hyperparams
-                    # cros_val(**exp_params)
+                    # TODO: train with trainer params + model + hyper params
+                    # cros_val(model=model, **exp_params, hparams=hexp_params)
 
                     # TODO: process score
                     score = 123
 
-                    # then log on mlflow
+                    # log training on mlflow
                     self.push_to_mlflow(exp_params, model_name, hexp_params, score)
